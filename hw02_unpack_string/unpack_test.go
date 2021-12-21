@@ -1,7 +1,6 @@
-package hw02unpackstring
+package unpack
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,11 +15,19 @@ func TestUnpack(t *testing.T) {
 		{input: "abccd", expected: "abccd"},
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
-		// uncomment if task with asterisk completed
-		// {input: `qwe\4\5`, expected: `qwe45`},
-		// {input: `qwe\45`, expected: `qwe44444`},
-		// {input: `qwe\\5`, expected: `qwe\\\\\`},
-		// {input: `qwe\\\3`, expected: `qwe\3`},
+		{input: `qwe\4\5`, expected: `qwe45`},
+		{input: `qwe\45`, expected: `qwe44444`},
+		{input: `qwe\\5`, expected: `qwe\\\\\`},
+		{input: `qwe\\\3`, expected: `qwe\3`},
+		{input: "d\n5abc", expected: "d\n\n\n\n\nabc"},
+		{input: "-3qwe+4", expected: "---qwe++++"},
+		{input: `\\4\\5\\6`, expected: `\\\\\\\\\\\\\\\`},
+		{input: `\\4\\5\6`, expected: `\\\\\\\\\6`},
+		{input: `\6abc`, expected: `6abc`},
+		{input: `+\6abc`, expected: `+6abc`},
+		{input: `aaa0\0`, expected: `aa0`},
+		{input: `aaa0\\0`, expected: `aa`},
+		{input: `\-6abcd`, expected: `------abcd`},
 	}
 
 	for _, tc := range tests {
@@ -34,12 +41,22 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b"}
-	for _, tc := range invalidStrings {
+	tests := []struct {
+		input         string
+		expectedError string
+	}{
+		{input: "3abc", expectedError: "first element is number"},
+		{input: "45", expectedError: "first element is number"},
+		{input: "aaa10b", expectedError: "element is number"},
+		{input: `\\666`, expectedError: "element is number"},
+		{input: `6\6abv`, expectedError: "first element is number"},
+		{input: `aaa00`, expectedError: "element is number"},
+	}
+	for _, tc := range tests {
 		tc := tc
-		t.Run(tc, func(t *testing.T) {
-			_, err := Unpack(tc)
-			require.Truef(t, errors.Is(err, ErrInvalidString), "actual error %q", err)
+		t.Run(tc.input, func(t *testing.T) {
+			_, err := Unpack(tc.input)
+			require.EqualErrorf(t, err, tc.expectedError, "error message %v", err)
 		})
 	}
 }
