@@ -37,7 +37,11 @@ func Unpack(stingForUnpack string) (string, error) {
 				return "", errors.New("element is number")
 			}
 
-			repeatCount, _ := strconv.Atoi(string(element))
+			repeatCount, err := strconv.Atoi(string(element))
+			if err != nil {
+				return "", err
+			}
+
 			if repeatCount > 0 {
 				stringBuilder.WriteString(repeatPreviousElement(stringBuilder.String(), repeatCount))
 			} else if repeatCount == 0 {
