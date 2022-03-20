@@ -43,9 +43,26 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var text2 = `собака кошка собака кошка кошка птица`
+
+var text3 = `                `
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
+	})
+
+	t.Run("less 10 top words", func(t *testing.T) {
+		expected := []string{
+			"кошка",  // 3
+			"собака", // 2
+			"птица",  // 1
+		}
+		require.Equal(t, expected, Top10(text2))
+	})
+
+	t.Run("no words in few whitespace", func(t *testing.T) {
+		require.Len(t, Top10(text3), 0)
 	})
 
 	t.Run("positive test", func(t *testing.T) {
