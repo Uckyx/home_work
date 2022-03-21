@@ -1,5 +1,7 @@
 package hw04lrucache
 
+import "errors"
+
 type Key string
 
 type Cache interface {
@@ -28,24 +30,26 @@ func NewCache(capacity int) Cache {
 }
 
 func (lc *lruCache) Set(key Key, value interface{}) bool {
-	item := &cacheItem{key: key, value: value}
+	cItem := &cacheItem{key: key, value: value}
 	if listItem, ok := lc.items[key]; ok {
-		listItem.Value = item
+		listItem.Value = cItem
 		lc.queue.MoveToFront(listItem)
 
 		return true
 	}
 
-	if len(lc.items) > lc.queue.Len() {
-		//lastElement := lc.queue.Back()
-		//lc.queue.Back().Value
-		//
-		//lc.queue.Remove(lc.queue.Back())
-		//delete(lc.items[lastElement.Value.key])
+	pushedItem := lc.queue.PushFront(cItem)
+	if lc.queue.Len() > lc.capacity {
+		convertedCacheItem, err := convertToCacheItem(lc.queue.Back().Value)
+		if err != nil {
+			return false
+		}
 
+		lc.queue.Remove(lc.queue.Back())
+		delete(lc.items, convertedCacheItem.key)
 	}
 
-	lc.items[key] = lc.queue.PushFront(item)
+	lc.items[key] = pushedItem
 
 	return false
 }
@@ -54,7 +58,12 @@ func (lc *lruCache) Get(key Key) (interface{}, bool) {
 	if listItem, ok := lc.items[key]; ok {
 		lc.queue.MoveToFront(listItem)
 
-		return listItem.Value, true
+		convertedCacheItem, err := convertToCacheItem(listItem.Value)
+		if err != nil {
+			return nil, false
+		}
+
+		return convertedCacheItem.value, true
 	}
 
 	return nil, false
@@ -65,4 +74,13 @@ func (lc *lruCache) Clear() {
 	for item := range lc.items {
 		delete(lc.items, item)
 	}
+}
+
+func convertToCacheItem(value interface{}) (*cacheItem, error) {
+	cItem, ok := value.(*cacheItem)
+	if !ok {
+		return nil, errors.New("first element is number")
+	}
+
+	return cItem, nil
 }
