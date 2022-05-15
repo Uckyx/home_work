@@ -1,4 +1,4 @@
-module github.com/Uckyx/home_work/tree/master/hw07_file_copying
+module github.com/Uckyx/home_work/tree/hw07_file_copying
 
 go 1.16
 
