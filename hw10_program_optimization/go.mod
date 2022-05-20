@@ -1,4 +1,4 @@
-module github.com/Uckyx/home_work/hw10_program_optimization
+module github.com/Uckyx/home_work/tree/hw10_program_optimization
 
 go 1.16
 
