@@ -1,3 +1,4 @@
+//go:build bench
 // +build bench
 
 package hw10programoptimization
@@ -12,7 +13,7 @@ import (
 
 const (
 	mb          uint64 = 1 << 20
-	memoryLimit uint64 = 30 * mb
+	memoryLimit        = 30 * mb
 
 	timeLimit = 300 * time.Millisecond
 )
